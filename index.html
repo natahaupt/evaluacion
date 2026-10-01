@@ -53,6 +53,7 @@
       padding: 38px 32px;
       border: 3px solid var(--pink-soft);
       position: relative;
+      overflow: hidden;
     }
 
     .badge-decor {
@@ -107,11 +108,11 @@
       font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.2s ease;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
     }
 
     .btn:active {
-      transform: scale(0.98);
+      transform: scale(0.96);
     }
 
     .btn-primary {
@@ -124,13 +125,14 @@
       background: var(--pink-dark);
     }
 
+    /* Barra de progreso y temporizador */
     .progress-bar-container {
       width: 100%;
       height: 12px;
       background: var(--pink-soft);
       border-radius: 50px;
       overflow: hidden;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .progress-bar-fill {
@@ -138,6 +140,34 @@
       width: 0%;
       background: var(--pink-accent);
       transition: width 0.35s ease;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF0F4;
+      border: 1.5px solid var(--pink-primary);
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--pink-dark);
+      transition: all 0.3s ease;
+    }
+
+    .timer-alert {
+      background: #FFE3E3 !important;
+      border-color: #FF7575 !important;
+      color: #D32F2F !important;
+      animation: pulse 0.8s infinite;
     }
 
     .competency-tag {
@@ -149,6 +179,39 @@
       border-radius: 10px;
       margin-bottom: 14px;
       font-weight: 700;
+    }
+
+    /* Animaciones */
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes selectPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.94); }
+      100% { transform: scale(1.02); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .card-animated {
+      animation: fadeInSlide 0.4s ease-out forwards;
     }
 
     .question-box {
@@ -176,12 +239,27 @@
       font-weight: 700;
       color: var(--text-dark);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .option-btn:hover {
+    .option-btn:hover:not(:disabled) {
       border-color: var(--pink-accent);
       background: #FFF9FA;
+      transform: translateY(-2px);
+    }
+
+    .btn-selected-correct {
+      border-color: var(--green-ok) !important;
+      background: var(--green-bg) !important;
+      color: var(--green-text) !important;
+      animation: selectPop 0.3s ease;
+    }
+
+    .btn-selected-incorrect {
+      border-color: var(--red-fail) !important;
+      background: var(--red-bg) !important;
+      color: var(--red-text) !important;
+      animation: shake 0.4s ease;
     }
 
     .feedback-box {
@@ -191,6 +269,7 @@
       margin-bottom: 20px;
       display: none;
       line-height: 1.5;
+      animation: fadeInSlide 0.3s ease-out;
     }
 
     .feedback-correct {
@@ -205,7 +284,6 @@
       color: var(--red-text);
     }
 
-    /* Área capturable como imagen */
     #report-capture-area {
       background: #FFFFFF;
       padding: 24px;
@@ -279,10 +357,10 @@
   <div class="container">
     
     <!-- PANTALLA 1: REGISTRO -->
-    <div id="screen-start">
+    <div id="screen-start" class="card-animated">
       <div style="text-align: center;"><span class="badge-decor">🌸 Evaluación Formativa</span></div>
       <h1>Modelo de Competencias</h1>
-      <p class="subtitle">Diplomado en Educación basada en Competencias.<br><strong>Aviso:</strong> Las preguntas son aleatorias y solo tienes 1 intento.</p>
+      <p class="subtitle">Diplomado en Educación basada en Competencias.<br><strong>30 segundos</strong> por reactivo • Preguntas aleatorias • 1 intento.</p>
       
       <label style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; display: block; color: var(--pink-dark);">Nombre completo:</label>
       <input type="text" id="studentName" class="input-field" placeholder="Ej. Mariana Flores" required />
@@ -296,30 +374,36 @@
         <div id="progress-fill" class="progress-bar-fill"></div>
       </div>
       
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span id="question-badge" class="badge-decor">Pregunta 1 de 10</span>
+      <div class="header-info">
+        <span id="question-badge" class="badge-decor" style="margin-bottom: 0;">Pregunta 1 de 10</span>
+        <div id="timer-box" class="timer-badge">
+          <span>⏱️</span>
+          <span id="timer-count">30s</span>
+        </div>
+      </div>
+
+      <!-- Contenedor dinámico que se anima con cada pregunta -->
+      <div id="quiz-animated-content">
         <span id="competency-badge" class="competency-tag">Dimensión Conceptual</span>
+        <div id="question-text" class="question-box"></div>
+
+        <div class="options-grid">
+          <button id="btn-true" class="option-btn" onclick="checkAnswer(true)">🌸 Verdadero</button>
+          <button id="btn-false" class="option-btn" onclick="checkAnswer(false)">✨ Falso</button>
+        </div>
+
+        <div id="feedback" class="feedback-box"></div>
       </div>
 
-      <div id="question-text" class="question-box"></div>
-
-      <div class="options-grid">
-        <button id="btn-true" class="option-btn" onclick="checkAnswer(true)">🌸 Verdadero</button>
-        <button id="btn-false" class="option-btn" onclick="checkAnswer(false)">✨ Falso</button>
-      </div>
-
-      <div id="feedback" class="feedback-box"></div>
-
-      <button id="next-btn" class="btn btn-primary hidden" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
+      <button id="next-btn" class="btn btn-primary hidden card-animated" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
     </div>
 
     <!-- PANTALLA 3: REPORTE FINAL -->
-    <div id="screen-result" class="hidden">
+    <div id="screen-result" class="hidden card-animated">
       <div id="attempt-warning" class="notice-box hidden">
         🔒 Esta evaluación ya ha sido completada. Solo se permite un intento por usuario.
       </div>
 
-      <!-- Contenedor que se exporta como JPG -->
       <div id="report-capture-area">
         <div style="text-align: center;"><span class="badge-decor">📄 Reporte Oficial</span></div>
         <h2 style="font-size: 1.3rem;">Evidencia de Evaluación</h2>
@@ -360,64 +444,64 @@
   <script>
     const baseQuestions = [
       {
-        tag: "Epistemología Pedagógica",
-        text: "Según la perspectiva de Thomas Kuhn retomada en el enfoque de competencias, un paradigma se define como un conjunto de creencias, valores y argumentos compartidos por una comunidad científica.",
+        tag: "Lógica Epistemológica",
+        text: "El modelo de competencias propone pasar de la lógica de los contenidos a la lógica de la acción.",
         answer: true,
-        justification: "Kuhn plantea que un paradigma no es una simple técnica o metodología aislada, sino una cosmovisión compartida que orienta los problemas, métodos y soluciones legítimas de una comunidad científica o profesional."
+        justification: "Es Verdadero: Transita de la acumulación teórica pasiva al saber actuar de manera pertinente ante problemas reales del contexto."
       },
       {
-        tag: "Modelos Pedagógicos",
-        text: "El enfoque de competencias se propone en el ámbito educativo como una alternativa transformadora frente a los modelos pedagógicos tradicionales como el conductismo, cognoscitivismo y constructivismo clásico.",
-        answer: true,
-        justification: "Surge para superar la fragmentación teórica e instrumental de los modelos pedagógicos previos, articulando el conocimiento con el contexto, la resolución de problemas y la actuación integral."
-      },
-      {
-        tag: "Lógica de Formación",
-        text: "El modelo de competencias propone un cambio de lógica que va desde la centralidad de los contenidos hacia la lógica de la acción contextuada.",
-        answer: true,
-        justification: "Se pasa del enciclopedismo y la acumulación pasiva de saberes a la aplicación ética y eficaz de dichos saberes ante problemas de la vida real (aprender en y para la acción)."
-      },
-      {
-        tag: "Calidad y Pertinencia",
-        text: "Uno de los principales problemas educativos que busca abordar y resolver el modelo de competencias es cómo asegurar la calidad y pertinencia del aprendizaje.",
-        answer: true,
-        justification: "Su meta no es recortar tareas o evadir contenidos, sino garantizar aprendizajes significativos, pertinentes y con criterios claros de idoneidad y desempeño social."
-      },
-      {
-        tag: "Rol Docente",
-        text: "Dentro de los principios del modelo por competencias, el rol del docente se limita al de un mero transmisor de información teórica.",
+        tag: "Estructura Curricular",
+        text: "El modelo de competencias elimina completamente los contenidos de los planes de estudio.",
         answer: false,
-        justification: "El docente asume un papel de mediador, dinamizador y guía pedagógico, facilitando procesos de autorregulación y acompañando la construcción de competencias."
+        justification: "Es Falso: No prescinde de los contenidos, sino que los resignifica como recursos e instrumentos al servicio del desarrollo de la competencia."
       },
       {
-        tag: "Finalidad Curricular",
-        text: "En el marco de este modelo, la función principal de los educadores consiste exclusivamente en enseñar y agotar los contenidos temáticos del currículo.",
+        tag: "Secuencias Didácticas",
+        text: "Los contenidos deben aprenderse por separado antes de aplicarlos a los problemas.",
         answer: false,
-        justification: "La labor docente fundamental es formar y desarrollar competencias integrales en los estudiantes, utilizando los contenidos como medios y no como el fin en sí mismos."
+        justification: "Es Falso: El aprendizaje por competencias articula la apropiación conceptual en función directa del reto y la situación problemática real."
       },
       {
-        tag: "Evolución Conceptual (CIFE)",
-        text: "El Instituto CIFE clasifica la evolución del concepto de competencias en cuatro grandes enfoques: conductual, funcionalista, constructivista y socioformativo (o complejo).",
+        tag: "Integración de Recursos",
+        text: "Las competencias articulan y movilizan recursos personales y del contexto.",
         answer: true,
-        justification: "Esta tipología desarrollada por Sergio Tobón y CIFE rastrea desde las visiones mecanicistas y laborales (conductual, funcional) hasta las integrales y éticas orientadas al proyecto ético de vida (socioformativo)."
+        justification: "Es Verdadero: Demandan poner en juego capacidades cognitivas, actitudinales y herramientas materiales del entorno para dar soluciones integrales."
       },
       {
-        tag: "Socioformación y Saberes",
-        text: "Desde la socioformación, una competencia integra de manera articulada tres dimensiones: el saber ser (actitudes y valores), el saber conocer (conceptos y teorías) y el saber hacer (procedimientos y destrezas).",
+        tag: "Evaluación Auténtica",
+        text: "La evaluación forma parte de las secuencias didácticas por competencias.",
         answer: true,
-        justification: "El enfoque socioformativo rechaza la reducción de la competencia al mero desempeño operativo ('hacer'); exige la unión indisoluble entre ética/actitud, conocimiento riguroso y actuación práctica."
+        justification: "Es Verdadero: La evaluación es consustancial y formativa a lo largo de toda la secuencia didáctica, no un examen desarticulado al final."
       },
       {
-        tag: "Evaluación y Evidencias",
-        text: "En la evaluación de competencias, las evidencias representan pruebas concretas, tangibles y observables del desempeño del estudiante.",
+        tag: "Finalidad Educativa",
+        text: "El modelo de competencias busca formar competencias y no solamente enseñar contenidos.",
         answer: true,
-        justification: "Las evidencias (de conocimiento, proceso o producto) son muestras reales que permiten contrastar el nivel de dominio alcanzado frente a criterios o rúbricas previamente establecidas."
+        justification: "Es Verdadero: La meta curricular es la actuación idónea y ética, superando el modelo enciclopedista centrado en agotar temarios."
       },
       {
-        tag: "Diseño Didáctico",
-        text: "Las secuencias didácticas por competencias son listas aisladas de temas teóricos organizados cronológicamente sin articulación de evaluación.",
+        tag: "Gestión Curricular",
+        text: "El cambio educativo se genera mediante la reflexión y formación de docentes y directivos.",
+        answer: true,
+        justification: "Es Verdadero: La transformación hacia competencias exige el cambio cultural e institucional en las prácticas pedagógicas y de liderazgo."
+      },
+      {
+        tag: "Socioformación",
+        text: "El enfoque socioformativo busca la formación integral de las personas.",
+        answer: true,
+        justification: "Es Verdadero: Articula el saber ser, saber conocer, saber hacer y el compromiso ético ante los retos sociales."
+      },
+      {
+        tag: "Arquitectura Didáctica",
+        text: "Las secuencias didácticas están formadas por actividades aisladas sin relación entre sí.",
         answer: false,
-        justification: "Una secuencia didáctica por competencias es una serie articulada, progresiva y sistemática de actividades de aprendizaje y evaluación dirigidas a resolver un problema del contexto."
+        justification: "Es Falso: Son dispositivos didácticos continuos, progresivos e interdependientes orientados a una evidencia o producto integrador."
+      },
+      {
+        tag: "Pertinencia Social",
+        text: "El modelo de competencias busca afrontar problemas pertinentes del contexto.",
+        answer: true,
+        justification: "Es Verdadero: La pertinencia social y la solución a problemáticas reales constituyen el núcleo fundamental de idoneidad del enfoque."
       }
     ];
 
@@ -425,6 +509,8 @@
     let currentIdx = 0;
     let score = 0;
     let student = "";
+    let timerInterval = null;
+    let timeLeft = 30;
 
     window.addEventListener("DOMContentLoaded", () => {
       const savedAttempt = localStorage.getItem("competencias_eval_done");
@@ -435,7 +521,6 @@
       }
     });
 
-    // Algoritmo Fisher-Yates para barajar preguntas
     function shuffle(array) {
       let copy = [...array];
       for (let i = copy.length - 1; i > 0; i--) {
@@ -460,8 +545,43 @@
       renderQuestion();
     }
 
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 30;
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timeExpired();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const timerCount = document.getElementById("timer-count");
+      const timerBox = document.getElementById("timer-box");
+      timerCount.innerText = `${timeLeft}s`;
+
+      if (timeLeft <= 10) {
+        timerBox.classList.add("timer-alert");
+      } else {
+        timerBox.classList.remove("timer-alert");
+      }
+    }
+
     function renderQuestion() {
       const q = randomizedQuestions[currentIdx];
+      
+      // Reiniciar animación del bloque central
+      const quizArea = document.getElementById("quiz-animated-content");
+      quizArea.classList.remove("card-animated");
+      void quizArea.offsetWidth; // Forzar reflujo
+      quizArea.classList.add("card-animated");
+
       document.getElementById("question-badge").innerText = `Pregunta ${currentIdx + 1} de ${randomizedQuestions.length}`;
       document.getElementById("competency-badge").innerText = q.tag;
       document.getElementById("question-text").innerText = q.text;
@@ -469,30 +589,71 @@
       const progressPercent = (currentIdx / randomizedQuestions.length) * 100;
       document.getElementById("progress-fill").style.width = `${progressPercent}%`;
 
+      const btnTrue = document.getElementById("btn-true");
+      const btnFalse = document.getElementById("btn-false");
+
+      btnTrue.disabled = false;
+      btnFalse.disabled = false;
+      btnTrue.className = "option-btn";
+      btnFalse.className = "option-btn";
+
       document.getElementById("feedback").style.display = "none";
       document.getElementById("feedback").className = "feedback-box";
-      document.getElementById("btn-true").disabled = false;
-      document.getElementById("btn-false").disabled = false;
       document.getElementById("next-btn").classList.add("hidden");
+
+      startTimer();
     }
 
     function checkAnswer(userChoice) {
+      clearInterval(timerInterval);
       const q = randomizedQuestions[currentIdx];
       const feedback = document.getElementById("feedback");
-      
-      document.getElementById("btn-true").disabled = true;
-      document.getElementById("btn-false").disabled = true;
+      const btnTrue = document.getElementById("btn-true");
+      const btnFalse = document.getElementById("btn-false");
+
+      btnTrue.disabled = true;
+      btnFalse.disabled = true;
 
       const isCorrect = (userChoice === q.answer);
+      const chosenBtn = userChoice ? btnTrue : btnFalse;
+      const oppositeBtn = userChoice ? btnFalse : btnTrue;
+
       if (isCorrect) {
         score++;
+        chosenBtn.classList.add("btn-selected-correct");
         feedback.className = "feedback-box feedback-correct";
         feedback.innerHTML = `<strong>🌸 ¡Respuesta Correcta!</strong><br>${q.justification}`;
       } else {
+        chosenBtn.classList.add("btn-selected-incorrect");
+        oppositeBtn.classList.add("btn-selected-correct");
         feedback.className = "feedback-box feedback-incorrect";
         feedback.innerHTML = `<strong>✨ Retroalimentación formativa:</strong><br>La respuesta correcta es <strong>${q.answer ? 'Verdadero' : 'Falso'}</strong>.<br>${q.justification}`;
       }
+
       feedback.style.display = "block";
+      document.getElementById("next-btn").classList.remove("hidden");
+    }
+
+    function timeExpired() {
+      const q = randomizedQuestions[currentIdx];
+      const feedback = document.getElementById("feedback");
+      const btnTrue = document.getElementById("btn-true");
+      const btnFalse = document.getElementById("btn-false");
+
+      btnTrue.disabled = true;
+      btnFalse.disabled = true;
+
+      // Resaltar la opción correcta en verde
+      if (q.answer) {
+        btnTrue.classList.add("btn-selected-correct");
+      } else {
+        btnFalse.classList.add("btn-selected-correct");
+      }
+
+      feedback.className = "feedback-box feedback-incorrect";
+      feedback.innerHTML = `<strong>⏰ ¡Tiempo agotado!</strong><br>La respuesta correcta era <strong>${q.answer ? 'Verdadero' : 'Falso'}</strong>.<br>${q.justification}`;
+      feedback.style.display = "block";
+      
       document.getElementById("next-btn").classList.remove("hidden");
     }
 
@@ -506,6 +667,7 @@
     }
 
     function finishAndLockQuiz() {
+      clearInterval(timerInterval);
       const dateStr = new Date().toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
       const attemptData = {
         name: student,
@@ -531,28 +693,27 @@
 
       if (finalScore >= 9) {
         level = "Nivel Estratégico ⭐";
-        desc = "Evidencia dominio analítico superior de los fundamentos socioformativos, la epistemología de Kuhn y la articulación de evidencias y secuencias didácticas.";
+        desc = "Evidencia comprensión profunda sobre la transición epistémica hacia la lógica de la acción, la articulación de recursos y la evaluación integrada.";
       } else if (finalScore >= 7) {
         level = "Nivel Autónomo 🌸";
-        desc = "Comprende y distingue con claridad el rol docente, el cambio de lógica curricular y la estructura multidimensional de las competencias.";
+        desc = "Distingue el rol contextualizado de los contenidos, la arquitectura de secuencias didácticas y los fines de la socioformación.";
       } else if (finalScore >= 5) {
         level = "Nivel Resolutivo ✨";
-        desc = "Reconoce las ideas centrales del modelo, aunque requiere afianzar la tipología del CIFE y los criterios de evaluación auténtica.";
+        desc = "Reconoce nociones básicas del enfoque, pero requiere reforzar la interdependencia entre contenidos, problemas y evaluación formativa.";
       } else {
         level = "Nivel Inicial / Receptivo 🌱";
-        desc = "Se recomienda revisar nuevamente los textos rectores sobre mediación docente, socioformación y diseño de secuencias contextualizadas.";
+        desc = "Se sugiere profundizar en la literatura pedagógica sobre mediación por competencias y el diseño de secuencias didácticas complejas.";
       }
 
       document.getElementById("rep-level").innerText = level;
       document.getElementById("rep-feedback").innerHTML = `<strong>Juicio de valoración pedagógica:</strong><br>${desc}`;
     }
 
-    // Función para exportar el reporte como imagen JPG
     function downloadReportJPG() {
       const captureElement = document.getElementById("report-capture-area");
       
       html2canvas(captureElement, {
-        scale: 2, // Aumenta la calidad y nitidez de la imagen
+        scale: 2,
         backgroundColor: "#FFFFFF"
       }).then(canvas => {
         const link = document.createElement("a");

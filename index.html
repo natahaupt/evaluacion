@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Evaluación Interactiva por Competencias</title>
+  <title>Evaluación Interactiva por Competencias - CEPIES</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-  <!-- Librería para convertir el reporte en imagen JPG -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
@@ -44,12 +43,58 @@
       padding: 20px;
     }
 
+    .app-layout {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1100px;
+      gap: 30px;
+    }
+
+    .side-logo-container {
+      flex: 0 0 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .logo-frame {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid var(--pink-soft);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .logo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .side-logo-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--pink-dark);
+      line-height: 1.3;
+    }
+
     .container {
       background: var(--card-bg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       width: 100%;
-      max-width: 620px;
+      max-width: 600px;
       padding: 38px 32px;
       border: 3px solid var(--pink-soft);
       position: relative;
@@ -125,7 +170,6 @@
       background: var(--pink-dark);
     }
 
-    /* Barra de progreso y temporizador */
     .progress-bar-container {
       width: 100%;
       height: 12px;
@@ -181,16 +225,9 @@
       font-weight: 700;
     }
 
-    /* Animaciones */
     @keyframes fadeInSlide {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes pulse {
@@ -347,96 +384,141 @@
       text-align: center;
     }
 
+    .admin-reset-btn {
+      background: transparent;
+      border: none;
+      color: #B59FA5;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 15px;
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    .admin-reset-btn:hover {
+      color: var(--pink-dark);
+    }
+
     .hidden {
       display: none !important;
+    }
+
+    @media (max-width: 990px) {
+      .side-logo-container {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div class="app-layout">
     
-    <!-- PANTALLA 1: REGISTRO -->
-    <div id="screen-start" class="card-animated">
-      <div style="text-align: center;"><span class="badge-decor">🌸 Evaluación Formativa</span></div>
-      <h1>Modelo de Competencias</h1>
-      <p class="subtitle">Diplomado en Educación basada en Competencias.<br><strong>30 segundos</strong> por reactivo • Preguntas aleatorias • 1 intento.</p>
-      
-      <label style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; display: block; color: var(--pink-dark);">Nombre completo:</label>
-      <input type="text" id="studentName" class="input-field" placeholder="Ej. Mariana Flores" required />
-      
-      <button class="btn btn-primary" onclick="startQuiz()">Comenzar Evaluación ✨</button>
+    <!-- LOGO IZQUIERDO: CEPIES -->
+    <div class="side-logo-container">
+      <div class="logo-frame">
+        <img src="logo-cepies.jpg" alt="Logo CEPIES" />
+      </div>
+      <div class="side-logo-text">CEPIES<br>Posgrado & Investigación</div>
     </div>
 
-    <!-- PANTALLA 2: ACTIVIDAD INTERACTIVA -->
-    <div id="screen-quiz" class="hidden">
-      <div class="progress-bar-container">
-        <div id="progress-fill" class="progress-bar-fill"></div>
-      </div>
+    <!-- CONTENEDOR CENTRAL DE LA EVALUACIÓN -->
+    <div class="container">
       
-      <div class="header-info">
-        <span id="question-badge" class="badge-decor" style="margin-bottom: 0;">Pregunta 1 de 10</span>
-        <div id="timer-box" class="timer-badge">
-          <span>⏱️</span>
-          <span id="timer-count">30s</span>
-        </div>
+      <!-- PANTALLA 1: REGISTRO -->
+      <div id="screen-start" class="card-animated">
+        <div style="text-align: center;"><span class="badge-decor">🌸 Evaluación Formativa</span></div>
+        <h1>Modelo de Competencias</h1>
+        <p class="subtitle">Diplomado en Educación basada en Competencias.<br><strong>30 segundos</strong> por reactivo • Preguntas aleatorias • 1 intento.</p>
+        
+        <label style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; display: block; color: var(--pink-dark);">Nombre completo:</label>
+        <input type="text" id="studentName" class="input-field" placeholder="Ej. Mariana Flores" required />
+        
+        <button class="btn btn-primary" onclick="startQuiz()">Comenzar Evaluación ✨</button>
       </div>
 
-      <!-- Contenedor dinámico que se anima con cada pregunta -->
-      <div id="quiz-animated-content">
-        <span id="competency-badge" class="competency-tag">Dimensión Conceptual</span>
-        <div id="question-text" class="question-box"></div>
-
-        <div class="options-grid">
-          <button id="btn-true" class="option-btn" onclick="checkAnswer(true)">🌸 Verdadero</button>
-          <button id="btn-false" class="option-btn" onclick="checkAnswer(false)">✨ Falso</button>
+      <!-- PANTALLA 2: ACTIVIDAD INTERACTIVA -->
+      <div id="screen-quiz" class="hidden">
+        <div class="progress-bar-container">
+          <div id="progress-fill" class="progress-bar-fill"></div>
+        </div>
+        
+        <div class="header-info">
+          <span id="question-badge" class="badge-decor" style="margin-bottom: 0;">Pregunta 1 de 10</span>
+          <div id="timer-box" class="timer-badge">
+            <span>⏱️</span>
+            <span id="timer-count">30s</span>
+          </div>
         </div>
 
-        <div id="feedback" class="feedback-box"></div>
+        <div id="quiz-animated-content">
+          <span id="competency-badge" class="competency-tag">Dimensión Conceptual</span>
+          <div id="question-text" class="question-box"></div>
+
+          <div class="options-grid">
+            <button id="btn-true" class="option-btn" onclick="checkAnswer(true)">🌸 Verdadero</button>
+            <button id="btn-false" class="option-btn" onclick="checkAnswer(false)">✨ Falso</button>
+          </div>
+
+          <div id="feedback" class="feedback-box"></div>
+        </div>
+
+        <button id="next-btn" class="btn btn-primary hidden card-animated" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
       </div>
 
-      <button id="next-btn" class="btn btn-primary hidden card-animated" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
+      <!-- PANTALLA 3: REPORTE FINAL -->
+      <div id="screen-result" class="hidden card-animated">
+        <div id="attempt-warning" class="notice-box hidden">
+          🔒 Esta evaluación ya ha sido completada. Solo se permite un intento por usuario.
+        </div>
+
+        <div id="report-capture-area">
+          <div style="text-align: center;"><span class="badge-decor">📄 Reporte Oficial</span></div>
+          <h2 style="font-size: 1.3rem;">Evidencia de Evaluación</h2>
+          <p class="subtitle" style="font-size: 0.85rem; margin-bottom: 15px;">Enfoque Basado en Competencias y Socioformación</p>
+
+          <div class="score-circle">
+            <span id="score-val">0/10</span>
+            <small style="font-size: 0.7rem; color: var(--text-soft); font-weight: 600;">Calificación</small>
+          </div>
+
+          <div class="report-card">
+            <div class="report-item">
+              <strong>Participante:</strong>
+              <span id="rep-name">-</span>
+            </div>
+            <div class="report-item">
+              <strong>Nivel de dominio:</strong>
+              <span id="rep-level" style="font-weight: 700; color: var(--pink-dark);">-</span>
+            </div>
+            <div class="report-item">
+              <strong>Aciertos:</strong>
+              <span id="rep-corrects">-</span>
+            </div>
+            <div class="report-item">
+              <strong>Fecha y hora:</strong>
+              <span id="rep-date" style="font-size: 0.82rem; color: var(--text-soft);">-</span>
+            </div>
+            
+            <div class="competency-score" id="rep-feedback"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="downloadReportJPG()">📸 Descargar Imagen JPG (para WhatsApp)</button>
+        <button class="admin-reset-btn" onclick="adminReset()">⚙️ Reiniciar evaluación (Solo Admin)</button>
+      </div>
+
     </div>
 
-    <!-- PANTALLA 3: REPORTE FINAL -->
-    <div id="screen-result" class="hidden card-animated">
-      <div id="attempt-warning" class="notice-box hidden">
-        🔒 Esta evaluación ya ha sido completada. Solo se permite un intento por usuario.
+    <!-- LOGO DERECHO: CEPIES -->
+    <div class="side-logo-container">
+      <div class="logo-frame">
+        <img src="logo-cepies.jpg" alt="Logo CEPIES" />
       </div>
-
-      <div id="report-capture-area">
-        <div style="text-align: center;"><span class="badge-decor">📄 Reporte Oficial</span></div>
-        <h2 style="font-size: 1.3rem;">Evidencia de Evaluación</h2>
-        <p class="subtitle" style="font-size: 0.85rem; margin-bottom: 15px;">Enfoque Basado en Competencias y Socioformación</p>
-
-        <div class="score-circle">
-          <span id="score-val">0/10</span>
-          <small style="font-size: 0.7rem; color: var(--text-soft); font-weight: 600;">Calificación</small>
-        </div>
-
-        <div class="report-card">
-          <div class="report-item">
-            <strong>Participante:</strong>
-            <span id="rep-name">-</span>
-          </div>
-          <div class="report-item">
-            <strong>Nivel de dominio:</strong>
-            <span id="rep-level" style="font-weight: 700; color: var(--pink-dark);">-</span>
-          </div>
-          <div class="report-item">
-            <strong>Aciertos:</strong>
-            <span id="rep-corrects">-</span>
-          </div>
-          <div class="report-item">
-            <strong>Fecha y hora:</strong>
-            <span id="rep-date" style="font-size: 0.82rem; color: var(--text-soft);">-</span>
-          </div>
-          
-          <div class="competency-score" id="rep-feedback"></div>
-        </div>
-      </div>
-
-      <button class="btn btn-primary" onclick="downloadReportJPG()">📸 Descargar Imagen JPG (para WhatsApp)</button>
+      <div class="side-logo-text">Diplomado en Educación Superior</div>
     </div>
 
   </div>
@@ -576,10 +658,9 @@
     function renderQuestion() {
       const q = randomizedQuestions[currentIdx];
       
-      // Reiniciar animación del bloque central
       const quizArea = document.getElementById("quiz-animated-content");
       quizArea.classList.remove("card-animated");
-      void quizArea.offsetWidth; // Forzar reflujo
+      void quizArea.offsetWidth;
       quizArea.classList.add("card-animated");
 
       document.getElementById("question-badge").innerText = `Pregunta ${currentIdx + 1} de ${randomizedQuestions.length}`;
@@ -643,7 +724,6 @@
       btnTrue.disabled = true;
       btnFalse.disabled = true;
 
-      // Resaltar la opción correcta en verde
       if (q.answer) {
         btnTrue.classList.add("btn-selected-correct");
       } else {
@@ -722,6 +802,13 @@
         link.href = canvas.toDataURL("image/jpeg", 0.95);
         link.click();
       });
+    }
+
+    function adminReset() {
+      if (confirm("¿Deseas reiniciar la evaluación para volver a probarla desde cero?")) {
+        localStorage.clear();
+        location.reload();
+      }
     }
   </script>
 </body>

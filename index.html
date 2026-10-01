@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluación Interactiva por Competencias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #FFF5F7;
+      --pink-soft: #FEDCE5;
+      --pink-primary: #FFAAC1;
+      --pink-accent: #FF7597;
+      --pink-dark: #C94A6E;
+      --card-bg: #FFFFFF;
+      --text-dark: #4A3E42;
+      --text-soft: #857077;
+      --green-ok: #A3EBB1;
+      --green-bg: #EEFBF2;
+      --green-text: #1E6627;
+      --red-fail: #FFB5B5;
+      --red-bg: #FFF0F0;
+      --red-text: #8C2222;
+      --radius: 28px;
+      --shadow: 0 12px 30px rgba(201, 74, 110, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 620px;
+      padding: 38px 32px;
+      border: 3px solid var(--pink-soft);
+      position: relative;
+    }
+
+    .badge-decor {
+      background: var(--pink-soft);
+      color: var(--pink-dark);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+
+    h1, h2 {
+      color: var(--pink-dark);
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    p.subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      margin-bottom: 26px;
+      line-height: 1.5;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 18px;
+      border: 2px solid var(--pink-soft);
+      outline: none;
+      font-size: 1rem;
+      color: var(--text-dark);
+      background: #FFFDFE;
+      transition: all 0.2s ease;
+      margin-bottom: 22px;
+    }
+
+    .input-field:focus {
+      border-color: var(--pink-accent);
+      box-shadow: 0 0 0 4px rgba(255, 117, 151, 0.2);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 18px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--pink-accent);
+      color: white;
+      box-shadow: 0 6px 18px rgba(255, 117, 151, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--pink-dark);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 12px;
+      background: var(--pink-soft);
+      border-radius: 50px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--pink-accent);
+      transition: width 0.35s ease;
+    }
+
+    .competency-tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      color: var(--pink-dark);
+      background: #FFEBF0;
+      padding: 5px 12px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .question-box {
+      font-size: 1.12rem;
+      font-weight: 600;
+      line-height: 1.55;
+      margin-bottom: 24px;
+      min-height: 75px;
+      color: var(--text-dark);
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      padding: 16px;
+      border: 2px solid var(--pink-soft);
+      border-radius: 18px;
+      background: white;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover {
+      border-color: var(--pink-accent);
+      background: #FFF9FA;
+    }
+
+    .feedback-box {
+      border-radius: 16px;
+      padding: 16px 18px;
+      font-size: 0.93rem;
+      margin-bottom: 20px;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .feedback-correct {
+      background: var(--green-bg);
+      border: 1.5px solid var(--green-ok);
+      color: var(--green-text);
+    }
+
+    .feedback-incorrect {
+      background: var(--red-bg);
+      border: 1.5px solid var(--red-fail);
+      color: var(--red-text);
+    }
+
+    .report-card {
+      background: #FFF9FA;
+      border: 2px dashed var(--pink-primary);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+
+    .report-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .competency-score {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--pink-soft);
+      font-size: 0.92rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .score-circle {
+      width: 110px;
+      height: 110px;
+      background: white;
+      border: 4px solid var(--pink-accent);
+      border-radius: 50%;
+      margin: 0 auto 18px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(255, 117, 151, 0.15);
+    }
+
+    .score-circle span {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--pink-dark);
+    }
+
+    .notice-box {
+      background: #FFF0F4;
+      border: 1.5px solid var(--pink-primary);
+      color: var(--pink-dark);
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- PANTALLA 1: REGISTRO -->
+    <div id="screen-start">
+      <div style="text-align: center;"><span class="badge-decor">🌸 Evaluación Formativa</span></div>
+      <h1>Modelo de Competencias</h1>
+      <p class="subtitle">Diplomado en Educación basada en Competencias.<br><strong>Aviso:</strong> Solo tienes 1 intento para contestar.</p>
+      
+      <label style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; display: block; color: var(--pink-dark);">Nombre completo:</label>
+      <input type="text" id="studentName" class="input-field" placeholder="Ej. Mariana Flores" required />
+      
+      <button class="btn btn-primary" onclick="startQuiz()">Comenzar Evaluación ✨</button>
+    </div>
+
+    <!-- PANTALLA 2: ACTIVIDAD INTERACTIVA -->
+    <div id="screen-quiz" class="hidden">
+      <div class="progress-bar-container">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="question-badge" class="badge-decor">Pregunta 1 de 10</span>
+        <span id="competency-badge" class="competency-tag">Dimensión Conceptual</span>
+      </div>
+
+      <div id="question-text" class="question-box"></div>
+
+      <div class="options-grid">
+        <button id="btn-true" class="option-btn" onclick="checkAnswer(true)">🌸 Verdadero</button>
+        <button id="btn-false" class="option-btn" onclick="checkAnswer(false)">✨ Falso</button>
+      </div>
+
+      <div id="feedback" class="feedback-box"></div>
+
+      <button id="next-btn" class="btn btn-primary hidden" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
+    </div>
+
+    <!-- PANTALLA 3: REPORTE FINAL -->
+    <div id="screen-result" class="hidden">
+      <div style="text-align: center;"><span class="badge-decor">📄 Informe de Desempeño</span></div>
+      <h2>Reporte de Evaluación</h2>
+      <p class="subtitle">Enfoque Basado en Competencias y Socioformación</p>
+
+      <div id="attempt-warning" class="notice-box hidden">
+        🔒 Esta evaluación ya ha sido completada. Solo se permite un intento por usuario.
+      </div>
+
+      <div class="score-circle">
+        <span id="score-val">0/10</span>
+        <small style="font-size: 0.72rem; color: var(--text-soft); font-weight: 600;">Calificación</small>
+      </div>
+
+      <div class="report-card">
+        <div class="report-item">
+          <strong>Participante:</strong>
+          <span id="rep-name">-</span>
+        </div>
+        <div class="report-item">
+          <strong>Nivel de dominio:</strong>
+          <span id="rep-level" style="font-weight: 700; color: var(--pink-dark);">-</span>
+        </div>
+        <div class="report-item">
+          <strong>Aciertos:</strong>
+          <span id="rep-corrects">-</span>
+        </div>
+        
+        <div class="competency-score" id="rep-feedback"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="window.print()">📥 Imprimir o Guardar en PDF</button>
+    </div>
+
+  </div>
+
+  <script>
+    const baseQuestions = [
+      {
+        tag: "Epistemología Pedagógica",
+        text: "Según la perspectiva de Thomas Kuhn retomada en el enfoque de competencias, un paradigma se define como un conjunto de creencias, valores y argumentos compartidos por una comunidad científica.",
+        answer: true,
+        justification: "Kuhn plantea que un paradigma no es una simple técnica o metodología aislada, sino una cosmovisión compartida que orienta los problemas, métodos y soluciones legítimas de una comunidad científica o profesional."
+      },
+      {
+        tag: "Modelos Pedagógicos",
+        text: "El enfoque de competencias se propone en el ámbito educativo como una alternativa transformadora frente a los modelos pedagógicos tradicionales como el conductismo, cognoscitivismo y constructivismo clásico.",
+        answer: true,
+        justification: "Surge para superar la fragmentación teórica e instrumental de los modelos pedagógicos previos, articulando el conocimiento con el contexto, la resolución de problemas y la actuación integral."
+      },
+      {
+        tag: "Lógica de Formación",
+        text: "El modelo de competencias propone un cambio de lógica que va desde la centralidad de los contenidos hacia la lógica de la acción contextuada.",
+        answer: true,
+        justification: "Se pasa del enciclopedismo y la acumulación pasiva de saberes a la aplicación ética y eficaz de dichos saberes ante problemas de la vida real (aprender en y para la acción)."
+      },
+      {
+        tag: "Calidad y Pertinencia",
+        text: "Uno de los principales problemas educativos que busca abordar y resolver el modelo de competencias es cómo asegurar la calidad y pertinencia del aprendizaje.",
+        answer: true,
+        justification: "Su meta no es recortar tareas o evadir contenidos, sino garantizar aprendizajes significativos, pertinentes y con criterios claros de idoneidad y desempeño social."
+      },
+      {
+        tag: "Rol Docente",
+        text: "Dentro de los principios del modelo por competencias, el rol del docente se limita al de un mero transmisor de información teórica.",
+        answer: false,
+        justification: "El docente asume un papel de mediador, dinamizador y guía pedagógico, facilitando procesos de autorregulación y acompañando la construcción de competencias."
+      },
+      {
+        tag: "Finalidad Curricular",
+        text: "En el marco de este modelo, la función principal de los educadores consiste exclusivamente en enseñar y agotar los contenidos temáticos del currículo.",
+        answer: false,
+        justification: "La labor docente fundamental es formar y desarrollar competencias integrales en los estudiantes, utilizando los contenidos como medios y no como el fin en sí mismos."
+      },
+      {
+        tag: "Evolución Conceptual (CIFE)",
+        text: "El Instituto CIFE clasifica la evolución del concepto de competencias en cuatro grandes enfoques: conductual, funcionalista, constructivista y socioformativo (o complejo).",
+        answer: true,
+        justification: "Esta tipología desarrollada por Sergio Tobón y CIFE rastrea desde las visiones mecanicistas y laborales (conductual, funcional) hasta las integrales y éticas orientadas al proyecto ético de vida (socioformativo)."
+      },
+      {
+        tag: "Socioformación y Saberes",
+        text: "Desde la socioformación, una competencia integra de manera articulada tres dimensiones: el saber ser (actitudes y valores), el saber conocer (conceptos y teorías) y el saber hacer (procedimientos y destrezas).",
+        answer: true,
+        justification: "El enfoque socioformativo rechaza la reducción de la competencia al mero desempeño operativo ('hacer'); exige la unión indisoluble entre ética/actitud, conocimiento riguroso y actuación práctica."
+      },
+      {
+        tag: "Evaluación y Evidencias",
+        text: "En la evaluación de competencias, las evidencias representan pruebas concretas, tangibles y observables del desempeño del estudiante.",
+        answer: true,
+        justification: "Las evidencias (de conocimiento, proceso o producto) son muestras reales que permiten contrastar el nivel de dominio alcanzado frente a criterios o rúbricas previamente establecidas."
+      },
+      {
+        tag: "Diseño Didáctico",
+        text: "Las secuencias didácticas por competencias son listas aisladas de temas teóricos organizados cronológicamente sin articulación de evaluación.",
+        answer: false,
+        justification: "Una secuencia didáctica por competencias es una serie articulada, progresiva y sistemática de actividades de aprendizaje y evaluación dirigidas a resolver un problema del contexto."
+      }
+    ];
+
+    let randomizedQuestions = [];
+    let currentIdx = 0;
+    let score = 0;
+    let student = "";
+
+    // Verificar si ya respondió en este dispositivo al cargar
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedAttempt = localStorage.getItem("competencias_eval_done");
+      if (savedAttempt) {
+        const data = JSON.parse(savedAttempt);
+        mostrarReporteDirecto(data.name, data.score);
+      }
+    });
+
+    // Algoritmo de aleatorización Fisher-Yates
+    function shuffle(array) {
+      let copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuiz() {
+      const nameInput = document.getElementById("studentName").value.trim();
+      if (!nameInput) {
+        alert("Por favor ingresa tu nombre completo para comenzar.");
+        return;
+      }
+      
+      student = nameInput;
+      // Generar orden aleatorio para este participante
+      randomizedQuestions = shuffle(baseQuestions);
+
+      document.getElementById("screen-start").classList.add("hidden");
+      document.getElementById("screen-quiz").classList.remove("hidden");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = randomizedQuestions[currentIdx];
+      document.getElementById("question-badge").innerText = `Pregunta ${currentIdx + 1} de ${randomizedQuestions.length}`;
+      document.getElementById("competency-badge").innerText = q.tag;
+      document.getElementById("question-text").innerText = q.text;
+      
+      const progressPercent = (currentIdx / randomizedQuestions.length) * 100;
+      document.getElementById("progress-fill").style.width = `${progressPercent}%`;
+
+      document.getElementById("feedback").style.display = "none";
+      document.getElementById("feedback").className = "feedback-box";
+      document.getElementById("btn-true").disabled = false;
+      document.getElementById("btn-false").disabled = false;
+      document.getElementById("next-btn").classList.add("hidden");
+    }
+
+    function checkAnswer(userChoice) {
+      const q = randomizedQuestions[currentIdx];
+      const feedback = document.getElementById("feedback");
+      
+      document.getElementById("btn-true").disabled = true;
+      document.getElementById("btn-false").disabled = true;
+
+      const isCorrect = (userChoice === q.answer);
+      if (isCorrect) {
+        score++;
+        feedback.className = "feedback-box feedback-correct";
+        feedback.innerHTML = `<strong>🌸 ¡Respuesta Correcta!</strong><br>${q.justification}`;
+      } else {
+        feedback.className = "feedback-box feedback-incorrect";
+        feedback.innerHTML = `<strong>✨ Retroalimentación formativa:</strong><br>La respuesta correcta es <strong>${q.answer ? 'Verdadero' : 'Falso'}</strong>.<br>${q.justification}`;
+      }
+      feedback.style.display = "block";
+      document.getElementById("next-btn").classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      currentIdx++;
+      if (currentIdx < randomizedQuestions.length) {
+        renderQuestion();
+      } else {
+        finishAndLockQuiz();
+      }
+    }
+
+    function finishAndLockQuiz() {
+      // Bloquear reintento guardando en localStorage
+      const attemptData = {
+        name: student,
+        score: score,
+        completedAt: new Date().toISOString()
+      };
+      localStorage.setItem("competencias_eval_done", JSON.stringify(attemptData));
+
+      showResults(student, score);
+    }
+
+    function showResults(participantName, finalScore) {
+      document.getElementById("screen-quiz").classList.add("hidden");
+      document.getElementById("screen-start").classList.add("hidden");
+      document.getElementById("screen-result").classList.remove("hidden");
+
+      document.getElementById("score-val").innerText = `${finalScore}/10`;
+      document.getElementById("rep-name").innerText = participantName;
+      document.getElementById("rep-corrects").innerText = `${finalScore} de 10 aciertos`;
+
+      let level = "";
+      let desc = "";
+
+      if (finalScore >= 9) {
+        level = "Nivel Estratégico ⭐";
+        desc = "Evidencia dominio analítico superior de los fundamentos socioformativos, la epistemología de Kuhn y la articulación de evidencias y secuencias didácticas.";
+      } else if (finalScore >= 7) {
+        level = "Nivel Autónomo 🌸";
+        desc = "Comprende y distingue con claridad el rol docente, el cambio de lógica curricular y la estructura multidimensional de las competencias.";
+      } else if (finalScore >= 5) {
+        level = "Nivel Resolutivo ✨";
+        desc = "Reconoce las ideas centrales del modelo, aunque requiere afianzar la tipología del CIFE y los criterios de evaluación auténtica.";
+      } else {
+        level = "Nivel Inicial / Receptivo 🌱";
+        desc = "Se recomienda revisar nuevamente los textos rectores sobre mediación docente, socioformación y diseño de secuencias contextualizadas.";
+      }
+
+      document.getElementById("rep-level").innerText = level;
+      document.getElementById("rep-feedback").innerHTML = `<strong>Juicio de valoración pedagógica:</strong><br>${desc}`;
+    }
+
+    function mostrarReporteDirecto(participantName, finalScore) {
+      document.getElementById("attempt-warning").classList.remove("hidden");
+      showResults(participantName, finalScore);
+    }
+  </script>
+</body>
+</html>
